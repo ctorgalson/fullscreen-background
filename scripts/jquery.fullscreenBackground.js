@@ -41,7 +41,7 @@
    * });
    *
    * @author Christopher Torgalson <manager@bedlamhotel.com>
-   * @version 1.0
+   * @version 1.1 beta
    */
   $.fullscreenBackground = function(overrides) {  
     var defaults = {
@@ -63,14 +63,14 @@
           .attr({
             alt: options.image.alt,
             id: options.image.id,
-            src: $body.css('backgroundImage').replace(/url\("([^)]+)"\)/g, '$1')
+            src: $body.css('backgroundImage').replace(/url\("?([^)|"]+)"?\)/g, '$1')
           })
           .css(options.css);
-    $img.prependTo($body);
+    $img
+      .css({clip: 'rect(0 ' + $(window).width() + 'px ' + options.css.height + 'px 0)'})
+      .prependTo($body);
     $(window).resize(function(){
-      $img.css({
-        clip: 'rect(0 ' + $(window).width() + ' ' + options.css.height + ' 0)'
-      });
+      $img.css({clip: 'rect(0 ' + $(window).width() + 'px ' + options.css.height + 'px 0)'});
     });
   }; /* $.fullscreenBackground */
 })(jQuery);
