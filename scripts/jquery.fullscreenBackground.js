@@ -11,66 +11,85 @@
    * ratio.
    *
    * @param object overrides Javascript object with the following properties:
-   *    css (object): CSS properties suitable for direct use in jQuery's css
-   *                  method. In practice, this MUST include position, width,
-   *                  height, top or bottom, and left or right.
-   *
-   *                  The CSS clip property is used to ensure that, if a minWidth
-   *                  value is provided, the image is not scaled below that size,
-   *                  and that no horizontal scrollbar appears in the browser.
-   *      
+   *    
    *    image (object): object containing id and alt atrributes for generated
    *                    image (normally, alt should be empty for non-content
-   *                    images such as this).
+   *                    images such as this), and also an object containing
+   *                    CSS rules suitable for use in jQuery's CSS method. Almost
+   *                    certainly should contain position, width, height,
+   *                    top or bottom, and left or right.
+   *
+   *    wrapper (object): object containing id atrribute for wrapper for generated
+   *                      image, and also an object containing CSS properties
+   *                      suitable for direct use in jQuery's css method. In
+   *                      practice, this MUST include position, width, height,
+   *                      top or bottom, and left or right.
+   *
    *
    * @example
    *
    * // The following code produces an image that occupies 100% of the screen.
    * // If the screen is resized to less than 1200px in width, the image will
-   * // not be scaled, but clipped so that it scales up, but not down.
+   * // not be scaled:
+   * //
    * $.fullscreenBackground({
-   *   css: {
-   *     clip: 'inherit',
-   *     height: 600,
-   *     left: 0,
-   *     minWidth: 1200,
-   *     position: 'absolute',
-   *     top: 0,
-   *     width: '100%'
+   *   image: {
+   *      css: {
+   *       height: 100,
+   *       left: 0,
+   *       minWidth: 1200,
+   *       position: 'absolute',
+   *       top: 0,
+   *       width: '100%'
+   *     }
    *   }
    * });
    *
    * @author Christopher Torgalson <manager@bedlamhotel.com>
-   * @version 1.1 beta
+   * @version 1.1
    */
   $.fullscreenBackground = function(overrides) {  
     var defaults = {
-          css: {
-            height: '100%',
-            left: 0,
-            position: 'absolute',
-            top: 0,
-            width: '100%'
-          },
           image: {
             alt: '',
+            css: {
+              height: '100%',
+              left: 0,
+              position: 'absolute',
+              top: 0,
+              width: '100%'
+            },
             id: 'background-image'
+          },
+          wrapper: {
+            css: {
+              height: '100%',
+              left: 0,
+              overflow: 'hidden',
+              position: 'absolute',
+              top: 0,
+              width: '100%'
+            },
+            id: 'background-image-wrapper'
           }
         },
         options = $.extend({}, defaults, overrides),
         $body = $('body'),
+        $wrapper = $('<div id="background-image-wrapper" />')
+          .css(options.wrapper.css)
+          .attr({
+            id: options.wrapper.id
+          }),
         $img = $('<img/>')
+          .css(options.image.css)
           .attr({
             alt: options.image.alt,
             id: options.image.id,
             src: $body.css('backgroundImage').replace(/url\("?([^)|"]+)"?\)/g, '$1')
           })
-          .css(options.css);
-    $img
-      .css({clip: 'rect(0 ' + $(window).width() + 'px ' + options.css.height + 'px 0)'})
-      .prependTo($body);
-    $(window).resize(function(){
-      $img.css({clip: 'rect(0 ' + $(window).width() + 'px ' + options.css.height + 'px 0)'});
-    });
+          .wrap($wrapper);
+    $wrapper
+      .prependTo($body)
+      .append($img);
   }; /* $.fullscreenBackground */
 })(jQuery);
